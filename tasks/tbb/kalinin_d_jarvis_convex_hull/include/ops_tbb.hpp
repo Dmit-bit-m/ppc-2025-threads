@@ -34,5 +34,7 @@ class TestTaskSequential : public ppc::core::Task {
 };
 
 std::vector<Point> Jarvis(const std::vector<Point>& points);
+Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points);
+Point FindStartingPoint(const std::vector<Point>& points);
 
 }  // namespace kalinin_d_jarvis_convex_hull_tbb

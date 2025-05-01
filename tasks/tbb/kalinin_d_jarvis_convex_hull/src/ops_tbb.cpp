@@ -1,13 +1,13 @@
 // Copyright 2025 Kalinin Dmitry
 #include "tbb/kalinin_d_jarvis_convex_hull/include/ops_tbb.hpp"
 
-#include <omp.h>
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <vector>
+
 using namespace std::chrono_literals;
 
 namespace kalinin_d_jarvis_convex_hull_tbb {

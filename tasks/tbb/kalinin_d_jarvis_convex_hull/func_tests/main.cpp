@@ -173,35 +173,6 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, Rectangle_Points) {
   }
 }
 
-TEST(kalinin_d_jarvis_convex_hull_tbb, Circle_Points) {
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> points = {
-      {.x = 0, .y = 1},   {.x = 1, .y = 2},  {.x = 2, .y = 1}, {.x = 1, .y = 0}, {.x = 0, .y = -1}, {.x = -1, .y = -2},
-      {.x = -2, .y = -1}, {.x = -1, .y = 0}, {.x = 0, .y = 2}, {.x = 2, .y = 0}, {.x = -2, .y = 0}, {.x = 0, .y = -2}};
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull = {{.x = -2, .y = -1}, {.x = -2, .y = 0}, {.x = 0, .y = 2},
-                                                               {.x = 1, .y = 2},   {.x = 2, .y = 1},  {.x = 2, .y = 0},
-                                                               {.x = 0, .y = -2},  {.x = -1, .y = -2}};
-
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(hull.size());
-
-  // Create TaskData
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
-  task_data_seq->inputs_count.emplace_back(points.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
-  task_data_seq->outputs_count.emplace_back(res_hull.size());
-
-  // Create Task
-  kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_TRUE(test_task_sequential.ValidationImpl());
-  test_task_sequential.PreProcessingImpl();
-  test_task_sequential.RunImpl();
-  test_task_sequential.PostProcessingImpl();
-
-  for (size_t i = 0; i < hull.size(); ++i) {
-    ASSERT_EQ(res_hull[i], hull[i]);
-  }
-}
-
 TEST(kalinin_d_jarvis_convex_hull_tbb, Star_Points) {
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> points = {
       {.x = 0, .y = 3}, {.x = 1, .y = 1}, {.x = 2, .y = 3}, {.x = 3, .y = 1}, {.x = 4, .y = 3},

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <mutex>
 #include <vector>
 
 using namespace std::chrono_literals;
@@ -24,15 +25,22 @@ Point FindStartingPoint(const std::vector<Point>& points) {
 
 Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points) {
   Point next_point = points[0];
+
+  // Используем мьютекс для защиты общего состояния
+  std::mutex mutex;
+
   tbb::parallel_for(tbb::blocked_range<size_t>(0, points.size()), [&](const tbb::blocked_range<size_t>& range) {
     Point local_next_point = next_point;
+
     for (size_t i = range.begin(); i < range.end(); ++i) {
       const auto& point = points[i];
       if (point == prev_point) {
         continue;
       }
+
       double cross_product = ((point.y - prev_point.y) * (local_next_point.x - prev_point.x)) -
                              ((point.x - prev_point.x) * (local_next_point.y - prev_point.y));
+
       if (cross_product > 0 ||
           (cross_product == 0 &&
            ((point.x - prev_point.x) * (point.x - prev_point.x) + (point.y - prev_point.y) * (point.y - prev_point.y)) >
@@ -41,8 +49,12 @@ Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points) {
         local_next_point = point;
       }
     }
+
+    // Обновляем глобальный next_point в потокобезопасном блоке
+    std::lock_guard<std::mutex> lock(mutex);
     double cross_product = ((local_next_point.y - prev_point.y) * (next_point.x - prev_point.x)) -
                            ((local_next_point.x - prev_point.x) * (next_point.y - prev_point.y));
+
     if (cross_product > 0 ||
         (cross_product == 0 && ((local_next_point.x - prev_point.x) * (local_next_point.x - prev_point.x) +
                                 (local_next_point.y - prev_point.y) * (local_next_point.y - prev_point.y)) >
@@ -51,6 +63,7 @@ Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points) {
       next_point = local_next_point;
     }
   });
+
   return next_point;
 }
 

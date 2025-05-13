@@ -25,8 +25,6 @@ Point FindStartingPoint(const std::vector<Point>& points) {
 
 Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points) {
   Point next_point = points[0];
-
-  // Используем мьютекс для защиты общего состояния
   std::mutex mutex;
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, points.size()), [&](const tbb::blocked_range<size_t>& range) {
@@ -50,7 +48,7 @@ Point FindNextPoint(const Point& prev_point, const std::vector<Point>& points) {
       }
     }
 
-    // Обновляем глобальный next_point в потокобезопасном блоке
+    // Потокобезопасное обновление глобального next_point
     std::lock_guard<std::mutex> lock(mutex);
     double cross_product = ((local_next_point.y - prev_point.y) * (next_point.x - prev_point.x)) -
                            ((local_next_point.x - prev_point.x) * (next_point.y - prev_point.y));
